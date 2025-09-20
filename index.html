@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>分账工具</title>
     <style>
-        /* 基础样式 */
         :root {
             --primary-color: #007bff;
             --secondary-color: #6c757d;
@@ -111,7 +110,7 @@
         }
         input[type="number"] {
             -moz-appearance: textfield;
-            -webkit-appearance: none;
+            appearance: textfield;
         }
         input:focus {
             outline: none;
@@ -202,12 +201,6 @@
         }
         .add-btn { background-color: var(--primary-color); }
         .reset-btn { background-color: var(--secondary-color); }
-        .total-section label,
-        .member-card input,
-        .member-card .member-result,
-        .nice-button {
-            text-align: center;
-        }
         @media (max-width: 768px) {
             body { padding: 5px; }
             .container {
@@ -225,7 +218,6 @@
                 margin-right: auto;
                 display: block;
             }
-            .members-grid { gap: 15px; }
             .member-card {
                 width: 90%;
                 margin-left: auto;
@@ -267,7 +259,6 @@
     </style>
 </head>
 <body>
-
     <div class="container">
         <h1 id="main-title" onclick="editTitle()" title="点击编辑标题">AA是好文明</h1>
         <input type="text" id="title-editor" style="display: none;" onblur="saveTitle()" onkeypress="handleTitleKeypress(event)">
@@ -277,9 +268,7 @@
             <input type="number" id="total-amount" placeholder="输入总费用">
         </div>
 
-        <div class="members-grid" id="members-container">
-            
-        </div>
+        <div class="members-grid" id="members-container"></div>
 
         <div class="controls">
             <button class="nice-button add-btn" onclick="addMember()">+ 增加成员</button>
@@ -291,9 +280,9 @@
         const membersContainer = document.getElementById('members-container');
         let memberCounter = 0;
 
-        // 输入节流：避免频繁重算
         function debounce(fn, delay){
-            let timer; return function(...args){
+            let timer; 
+            return function(...args){
                 clearTimeout(timer);
                 timer = setTimeout(()=>fn.apply(this,args), delay);
             };
@@ -345,22 +334,17 @@
         }
 
         function initialize() {
-            for (let i = 0; i < 2; i++) {
-                addMember();
-            }
+            addMember();
+            addMember();
         }
 
-        // 标题编辑功能
         function editTitle() {
             const titleElement = document.getElementById('main-title');
             const editorElement = document.getElementById('title-editor');
             
-            // 隐藏标题，显示编辑框
             titleElement.style.display = 'none';
             editorElement.style.display = 'inline-block';
             editorElement.value = titleElement.textContent;
-            
-            // 自动调整宽度并聚焦
             adjustEditorWidth();
             editorElement.focus();
             editorElement.select();
@@ -370,41 +354,39 @@
             const titleElement = document.getElementById('main-title');
             const editorElement = document.getElementById('title-editor');
             
-            // 保存内容
-            const newTitle = editorElement.value.trim() || 'AA是好文明';
-            titleElement.textContent = newTitle;
-            
-            // 隐藏编辑框，显示标题
+            titleElement.textContent = editorElement.value.trim() || 'AA是好文明';
             editorElement.style.display = 'none';
             titleElement.style.display = 'inline-block';
         }
 
         function handleTitleKeypress(event) {
             if (event.key === 'Enter') {
-                event.target.blur(); // 触发失焦事件，保存标题
+                event.target.blur();
             } else if (event.key === 'Escape') {
-                // 按ESC键取消编辑
                 const titleElement = document.getElementById('main-title');
                 const editorElement = document.getElementById('title-editor');
                 editorElement.style.display = 'none';
                 titleElement.style.display = 'inline-block';
             }
-            // 实时调整宽度
             setTimeout(adjustEditorWidth, 0);
         }
 
         function adjustEditorWidth() {
             const editorElement = document.getElementById('title-editor');
             const tempSpan = document.createElement('span');
-            tempSpan.style.visibility = 'hidden';
-            tempSpan.style.position = 'absolute';
-            tempSpan.style.fontSize = window.getComputedStyle(editorElement).fontSize;
-            tempSpan.style.fontFamily = window.getComputedStyle(editorElement).fontFamily;
-            tempSpan.style.fontWeight = window.getComputedStyle(editorElement).fontWeight;
+            const computedStyle = window.getComputedStyle(editorElement);
+            
+            Object.assign(tempSpan.style, {
+                visibility: 'hidden',
+                position: 'absolute',
+                fontSize: computedStyle.fontSize,
+                fontFamily: computedStyle.fontFamily,
+                fontWeight: computedStyle.fontWeight
+            });
             tempSpan.textContent = editorElement.value || '占位文本';
             
             document.body.appendChild(tempSpan);
-            const textWidth = tempSpan.offsetWidth + 40; // 添加一些padding
+            const textWidth = tempSpan.offsetWidth + 40;
             document.body.removeChild(tempSpan);
             
             editorElement.style.width = Math.max(200, Math.min(textWidth, window.innerWidth * 0.8)) + 'px';
@@ -412,17 +394,13 @@
 
         document.addEventListener('DOMContentLoaded', ()=>{
             initialize();
-            const totalInput = document.getElementById('total-amount');
-            totalInput.addEventListener('input', debouncedCalculate);
+            document.getElementById('total-amount').addEventListener('input', debouncedCalculate);
             membersContainer.addEventListener('input', e=>{
-                if(e.target && e.target.classList.contains('member-time')){
+                if(e.target?.classList.contains('member-time')){
                     debouncedCalculate();
                 }
             });
-            
-            // 为标题编辑器添加输入事件监听器
-            const titleEditor = document.getElementById('title-editor');
-            titleEditor.addEventListener('input', adjustEditorWidth);
+            document.getElementById('title-editor').addEventListener('input', adjustEditorWidth);
         });
     </script>
 </body>
