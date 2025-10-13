@@ -264,7 +264,11 @@
         .add-btn { background-color: var(--primary-color); }
         .reset-btn { background-color: var(--secondary-color); }
         @media (max-width: 768px) {
-            body { padding: 5px; }
+            body { 
+                padding: 5px;
+                background: #ffffff;
+                background-image: none;
+            }
             .container {
                 padding: 10px;
                 width: 100%;
@@ -321,6 +325,10 @@
             }
         }
         @media (max-width: 480px) {
+            body {
+                background: #ffffff;
+                background-image: none;
+            }
             .container { padding: 4px; }
             .member-card { padding: 6px; gap: 4px; }
             .member-card > input,
