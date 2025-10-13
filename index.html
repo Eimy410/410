@@ -365,15 +365,17 @@
             
             // 在移动端调整滚动位置，保持按钮在原位
             if (window.innerWidth <= 768 && controls && buttonPositionBeforeAdd !== null) {
-                // 使用双重 requestAnimationFrame 确保布局完全完成
+                // 使用 setTimeout 配合 requestAnimationFrame 确保布局完全完成
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
-                        const rect = controls.getBoundingClientRect();
-                        const buttonPositionAfterAdd = rect.top;
-                        const scrollAdjustment = buttonPositionAfterAdd - buttonPositionBeforeAdd;
-                        if (scrollAdjustment !== 0) {
-                            window.scrollBy(0, scrollAdjustment);
-                        }
+                        setTimeout(() => {
+                            const rect = controls.getBoundingClientRect();
+                            const buttonPositionAfterAdd = rect.top;
+                            const scrollAdjustment = buttonPositionAfterAdd - buttonPositionBeforeAdd;
+                            if (Math.abs(scrollAdjustment) > 0.5) {
+                                window.scrollBy(0, scrollAdjustment);
+                            }
+                        }, 10);
                     });
                 });
             }
@@ -398,15 +400,17 @@
                 
                 // 在移动端调整滚动位置，保持按钮在原位
                 if (window.innerWidth <= 768 && controls && buttonPositionBeforeRemove !== null) {
-                    // 使用双重 requestAnimationFrame 确保布局完全完成
+                    // 使用 setTimeout 配合 requestAnimationFrame 确保布局完全完成
                     requestAnimationFrame(() => {
                         requestAnimationFrame(() => {
-                            const rect = controls.getBoundingClientRect();
-                            const buttonPositionAfterRemove = rect.top;
-                            const scrollAdjustment = buttonPositionAfterRemove - buttonPositionBeforeRemove;
-                            if (scrollAdjustment !== 0) {
-                                window.scrollBy(0, scrollAdjustment);
-                            }
+                            setTimeout(() => {
+                                const rect = controls.getBoundingClientRect();
+                                const buttonPositionAfterRemove = rect.top;
+                                const scrollAdjustment = buttonPositionAfterRemove - buttonPositionBeforeRemove;
+                                if (Math.abs(scrollAdjustment) > 0.5) {
+                                    window.scrollBy(0, scrollAdjustment);
+                                }
+                            }, 10);
                         });
                     });
                 }
