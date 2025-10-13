@@ -339,21 +339,45 @@
         }
         const debouncedCalculate = debounce(calculate, 150);
 
-        const MAX_POSITION_ADJUST_ATTEMPTS = 8;
-        const POSITION_ADJUST_THRESHOLD = 0.5;
-
-        function maintainButtonPosition(controls, targetAbsoluteTop, attempt = 0) {
-            if (!controls || attempt >= MAX_POSITION_ADJUST_ATTEMPTS) {
+        function maintainButtonPosition(controls, targetAbsoluteTop) {
+            if (!controls || targetAbsoluteTop === null) {
                 return;
             }
-            requestAnimationFrame(() => {
+            
+            let attempts = 0;
+            const maxAttempts = 15;
+            let lastDiff = 0;
+            
+            function checkAndAdjust() {
                 const rect = controls.getBoundingClientRect();
                 const currentAbsoluteTop = rect.top + window.scrollY;
                 const diff = currentAbsoluteTop - targetAbsoluteTop;
-                if (Math.abs(diff) > POSITION_ADJUST_THRESHOLD) {
+                
+                if (Math.abs(diff) > 0.5 && attempts < maxAttempts) {
+                    // 立即滚动到正确位置
                     window.scrollTo(0, window.scrollY + diff);
-                    maintainButtonPosition(controls, targetAbsoluteTop, attempt + 1);
+                    attempts++;
+                    
+                    // 如果位置还在变化，继续检查
+                    if (Math.abs(diff - lastDiff) > 0.1) {
+                        lastDiff = diff;
+                        requestAnimationFrame(checkAndAdjust);
+                    } else if (attempts < 5) {
+                        // 前5次强制继续检查
+                        requestAnimationFrame(checkAndAdjust);
+                    }
+                } else if (attempts < 3) {
+                    // 即使差异小，前3次也继续检查
+                    attempts++;
+                    requestAnimationFrame(checkAndAdjust);
                 }
+            }
+            
+            // 等待两帧后开始检查，给布局时间稳定
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    checkAndAdjust();
+                });
             });
         }
 
