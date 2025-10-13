@@ -339,15 +339,31 @@
         }
         const debouncedCalculate = debounce(calculate, 150);
 
+        const MAX_POSITION_ADJUST_ATTEMPTS = 8;
+        const POSITION_ADJUST_THRESHOLD = 0.5;
+
+        function maintainButtonPosition(controls, targetAbsoluteTop, attempt = 0) {
+            if (!controls || attempt >= MAX_POSITION_ADJUST_ATTEMPTS) {
+                return;
+            }
+            requestAnimationFrame(() => {
+                const rect = controls.getBoundingClientRect();
+                const currentAbsoluteTop = rect.top + window.scrollY;
+                const diff = currentAbsoluteTop - targetAbsoluteTop;
+                if (Math.abs(diff) > POSITION_ADJUST_THRESHOLD) {
+                    window.scrollTo(0, window.scrollY + diff);
+                    maintainButtonPosition(controls, targetAbsoluteTop, attempt + 1);
+                }
+            });
+        }
+
         function addMember(updateInput = true) {
             // 在移动端记录按钮位置
             const controls = document.querySelector('.controls');
             let buttonAbsoluteTopBeforeAdd = null;
-            let scrollPositionBeforeAdd = null;
             if (window.innerWidth <= 768 && controls) {
                 const rect = controls.getBoundingClientRect();
                 buttonAbsoluteTopBeforeAdd = rect.top + window.scrollY;
-                scrollPositionBeforeAdd = window.scrollY;
             }
             
             const currentCount = getCurrentMemberCount();
@@ -366,20 +382,8 @@
             calculate();
             
             // 在移动端调整滚动位置，保持按钮在原位
-            if (window.innerWidth <= 768 && controls && buttonAbsoluteTopBeforeAdd !== null && scrollPositionBeforeAdd !== null) {
-                // 使用 setTimeout 配合 requestAnimationFrame 确保布局完全完成
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        setTimeout(() => {
-                            const rect = controls.getBoundingClientRect();
-                            const buttonAbsoluteTopAfterAdd = rect.top + window.scrollY;
-                            const scrollAdjustment = buttonAbsoluteTopAfterAdd - buttonAbsoluteTopBeforeAdd;
-                            if (Math.abs(scrollAdjustment) > 0.5) {
-                                window.scrollTo(0, scrollPositionBeforeAdd + scrollAdjustment);
-                            }
-                        }, 16);
-                    });
-                });
+            if (window.innerWidth <= 768 && controls && buttonAbsoluteTopBeforeAdd !== null) {
+                maintainButtonPosition(controls, buttonAbsoluteTopBeforeAdd);
             }
         }
 
@@ -389,11 +393,9 @@
                 // 在移动端记录按钮位置
                 const controls = document.querySelector('.controls');
                 let buttonAbsoluteTopBeforeRemove = null;
-                let scrollPositionBeforeRemove = null;
                 if (window.innerWidth <= 768 && controls) {
                     const rect = controls.getBoundingClientRect();
                     buttonAbsoluteTopBeforeRemove = rect.top + window.scrollY;
-                    scrollPositionBeforeRemove = window.scrollY;
                 }
                 
                 memberCards[memberCards.length - 1].remove();
@@ -403,20 +405,8 @@
                 calculate();
                 
                 // 在移动端调整滚动位置，保持按钮在原位
-                if (window.innerWidth <= 768 && controls && buttonAbsoluteTopBeforeRemove !== null && scrollPositionBeforeRemove !== null) {
-                    // 使用 setTimeout 配合 requestAnimationFrame 确保布局完全完成
-                    requestAnimationFrame(() => {
-                        requestAnimationFrame(() => {
-                            setTimeout(() => {
-                                const rect = controls.getBoundingClientRect();
-                                const buttonAbsoluteTopAfterRemove = rect.top + window.scrollY;
-                                const scrollAdjustment = buttonAbsoluteTopAfterRemove - buttonAbsoluteTopBeforeRemove;
-                                if (Math.abs(scrollAdjustment) > 0.5) {
-                                    window.scrollTo(0, scrollPositionBeforeRemove + scrollAdjustment);
-                                }
-                            }, 16);
-                        });
-                    });
+                if (window.innerWidth <= 768 && controls && buttonAbsoluteTopBeforeRemove !== null) {
+                    maintainButtonPosition(controls, buttonAbsoluteTopBeforeRemove);
                 }
             }
         }
