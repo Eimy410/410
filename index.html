@@ -177,26 +177,6 @@
             margin-top: 30px;
         }
         
-        @media (max-width: 768px) {
-            .controls {
-                position: fixed;
-                bottom: 20px;
-                left: 0;
-                right: 0;
-                margin-top: 0;
-                z-index: 1000;
-                padding: 15px 20px;
-                pointer-events: none;
-                background: linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0));
-            }
-            .member-counter-control {
-                pointer-events: auto;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            }
-            .members-grid {
-                padding-bottom: 120px;
-            }
-        }
         .member-counter-control {
             display: flex;
             align-items: center;
@@ -293,6 +273,7 @@
             .member-card > .member-result { flex: 3 1 0; }
             .member-counter-control {
                 width: fit-content;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
             }
             .counter-btn {
                 width: 40px;
@@ -321,13 +302,6 @@
             #member-count-input {
                 width: 50px;
                 font-size: 1em;
-            }
-            .controls {
-                bottom: 15px;
-                padding: 12px 15px;
-            }
-            .members-grid {
-                padding-bottom: 100px;
             }
         }
     </style>
@@ -366,6 +340,14 @@
         const debouncedCalculate = debounce(calculate, 150);
 
         function addMember(updateInput = true) {
+            // 在移动端记录按钮位置
+            const controls = document.querySelector('.controls');
+            let buttonPositionBeforeAdd = null;
+            if (window.innerWidth <= 768 && controls) {
+                const rect = controls.getBoundingClientRect();
+                buttonPositionBeforeAdd = rect.top;
+            }
+            
             const currentCount = getCurrentMemberCount();
             const memberId = currentCount + 1;
             const card = document.createElement('div');
@@ -381,22 +363,47 @@
             }
             calculate();
             
-            // 在移动端自动滚动到新添加的成员
-            if (window.innerWidth <= 768) {
-                setTimeout(() => {
-                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 100);
+            // 在移动端调整滚动位置，保持按钮在原位
+            if (window.innerWidth <= 768 && controls && buttonPositionBeforeAdd !== null) {
+                requestAnimationFrame(() => {
+                    const rect = controls.getBoundingClientRect();
+                    const buttonPositionAfterAdd = rect.top;
+                    const scrollAdjustment = buttonPositionAfterAdd - buttonPositionBeforeAdd;
+                    if (scrollAdjustment !== 0) {
+                        window.scrollBy({ top: scrollAdjustment, behavior: 'smooth' });
+                    }
+                });
             }
         }
 
         function removeMember(updateInput = true) {
             const memberCards = document.querySelectorAll('.member-card');
             if (memberCards.length > 0) {
+                // 在移动端记录按钮位置
+                const controls = document.querySelector('.controls');
+                let buttonPositionBeforeRemove = null;
+                if (window.innerWidth <= 768 && controls) {
+                    const rect = controls.getBoundingClientRect();
+                    buttonPositionBeforeRemove = rect.top;
+                }
+                
                 memberCards[memberCards.length - 1].remove();
                 if (updateInput) {
                     updateMemberCountInput();
                 }
                 calculate();
+                
+                // 在移动端调整滚动位置，保持按钮在原位
+                if (window.innerWidth <= 768 && controls && buttonPositionBeforeRemove !== null) {
+                    requestAnimationFrame(() => {
+                        const rect = controls.getBoundingClientRect();
+                        const buttonPositionAfterRemove = rect.top;
+                        const scrollAdjustment = buttonPositionAfterRemove - buttonPositionBeforeRemove;
+                        if (scrollAdjustment !== 0) {
+                            window.scrollBy({ top: scrollAdjustment, behavior: 'smooth' });
+                        }
+                    });
+                }
             }
         }
 
