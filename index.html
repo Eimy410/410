@@ -13,9 +13,6 @@
     <style>
         :root {
             --primary-color: #007bff;
-            --bg-gradient-start: #e6e9f0;
-            --bg-gradient-end: #eef1f5;
-            --card-bg: #ffffff;
             --text-color: #343a40;
             --border-color: #dee2e6;
             --shadow-color: rgba(0, 0, 0, 0.1);
@@ -23,7 +20,7 @@
 
         body {
             font-family: 'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC','Source Han Sans SC','Helvetica Neue', Arial, sans-serif;
-            background-image: linear-gradient(120deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            background: #ffffff;
             color: var(--text-color);
             margin: 0;
             padding: 20px;
@@ -36,13 +33,7 @@
         .container {
             width: 100%;
             max-width: 900px;
-            background: var(--card-bg);
             padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px 0 var(--shadow-color);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            align-self: flex-start; 
         }
 
         h1 {
@@ -246,9 +237,7 @@
         }
         @media (max-width: 768px) {
             body { 
-                padding: 5px;
-                background: #ffffff;
-                background-image: none;
+                padding: 10px;
             }
             .container {
                 padding: 10px;
@@ -299,10 +288,6 @@
             }
         }
         @media (max-width: 480px) {
-            body {
-                background: #ffffff;
-                background-image: none;
-            }
             .container { padding: 4px; }
             .member-card { padding: 6px; gap: 4px; }
             .member-card > input,
