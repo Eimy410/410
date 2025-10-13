@@ -342,10 +342,12 @@
         function addMember(updateInput = true) {
             // 在移动端记录按钮位置
             const controls = document.querySelector('.controls');
-            let buttonPositionBeforeAdd = null;
+            let buttonAbsoluteTopBeforeAdd = null;
+            let scrollPositionBeforeAdd = null;
             if (window.innerWidth <= 768 && controls) {
                 const rect = controls.getBoundingClientRect();
-                buttonPositionBeforeAdd = rect.top;
+                buttonAbsoluteTopBeforeAdd = rect.top + window.scrollY;
+                scrollPositionBeforeAdd = window.scrollY;
             }
             
             const currentCount = getCurrentMemberCount();
@@ -364,18 +366,18 @@
             calculate();
             
             // 在移动端调整滚动位置，保持按钮在原位
-            if (window.innerWidth <= 768 && controls && buttonPositionBeforeAdd !== null) {
+            if (window.innerWidth <= 768 && controls && buttonAbsoluteTopBeforeAdd !== null && scrollPositionBeforeAdd !== null) {
                 // 使用 setTimeout 配合 requestAnimationFrame 确保布局完全完成
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
                         setTimeout(() => {
                             const rect = controls.getBoundingClientRect();
-                            const buttonPositionAfterAdd = rect.top;
-                            const scrollAdjustment = buttonPositionAfterAdd - buttonPositionBeforeAdd;
+                            const buttonAbsoluteTopAfterAdd = rect.top + window.scrollY;
+                            const scrollAdjustment = buttonAbsoluteTopAfterAdd - buttonAbsoluteTopBeforeAdd;
                             if (Math.abs(scrollAdjustment) > 0.5) {
-                                window.scrollBy(0, scrollAdjustment);
+                                window.scrollTo(0, scrollPositionBeforeAdd + scrollAdjustment);
                             }
-                        }, 10);
+                        }, 16);
                     });
                 });
             }
@@ -386,10 +388,12 @@
             if (memberCards.length > 0) {
                 // 在移动端记录按钮位置
                 const controls = document.querySelector('.controls');
-                let buttonPositionBeforeRemove = null;
+                let buttonAbsoluteTopBeforeRemove = null;
+                let scrollPositionBeforeRemove = null;
                 if (window.innerWidth <= 768 && controls) {
                     const rect = controls.getBoundingClientRect();
-                    buttonPositionBeforeRemove = rect.top;
+                    buttonAbsoluteTopBeforeRemove = rect.top + window.scrollY;
+                    scrollPositionBeforeRemove = window.scrollY;
                 }
                 
                 memberCards[memberCards.length - 1].remove();
@@ -399,18 +403,18 @@
                 calculate();
                 
                 // 在移动端调整滚动位置，保持按钮在原位
-                if (window.innerWidth <= 768 && controls && buttonPositionBeforeRemove !== null) {
+                if (window.innerWidth <= 768 && controls && buttonAbsoluteTopBeforeRemove !== null && scrollPositionBeforeRemove !== null) {
                     // 使用 setTimeout 配合 requestAnimationFrame 确保布局完全完成
                     requestAnimationFrame(() => {
                         requestAnimationFrame(() => {
                             setTimeout(() => {
                                 const rect = controls.getBoundingClientRect();
-                                const buttonPositionAfterRemove = rect.top;
-                                const scrollAdjustment = buttonPositionAfterRemove - buttonPositionBeforeRemove;
+                                const buttonAbsoluteTopAfterRemove = rect.top + window.scrollY;
+                                const scrollAdjustment = buttonAbsoluteTopAfterRemove - buttonAbsoluteTopBeforeRemove;
                                 if (Math.abs(scrollAdjustment) > 0.5) {
-                                    window.scrollBy(0, scrollAdjustment);
+                                    window.scrollTo(0, scrollPositionBeforeRemove + scrollAdjustment);
                                 }
-                            }, 10);
+                            }, 16);
                         });
                     });
                 }
