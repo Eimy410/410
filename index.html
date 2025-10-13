@@ -87,20 +87,6 @@
             0%, 100% { transform: scale(1); opacity: 0.8; }
             50% { transform: scale(1.3); opacity: 1; }
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes cardEnter {
-            from {
-                opacity: 0;
-                transform: translateY(10px) scale(0.98);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
 
         input[type="text"], input[type="number"] {
             font-family: inherit;
@@ -583,16 +569,14 @@
             editorElement.style.width = Math.max(200, Math.min(textWidth, window.innerWidth * 0.8)) + 'px';
         }
 
-        document.addEventListener('DOMContentLoaded', ()=>{
-            initialize();
-            document.getElementById('total-amount').addEventListener('input', debouncedCalculate);
-            membersContainer.addEventListener('input', e=>{
-                if(e.target?.classList.contains('member-time')){
-                    debouncedCalculate();
-                }
-            });
-            document.getElementById('title-editor').addEventListener('input', adjustEditorWidth);
+        initialize();
+        document.getElementById('total-amount').addEventListener('input', debouncedCalculate);
+        membersContainer.addEventListener('input', e=>{
+            if(e.target?.classList.contains('member-time')){
+                debouncedCalculate();
+            }
         });
+        document.getElementById('title-editor').addEventListener('input', adjustEditorWidth);
     </script>
 </body>
 </html>
