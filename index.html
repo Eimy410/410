@@ -256,6 +256,13 @@
             border-radius: 8px;
             box-shadow: 0 0 0 2px var(--primary-color);
         }
+        /* 移动端阻止长按菜单 */
+        @media (max-width: 768px) {
+            #member-count-input {
+                -webkit-touch-callout: none;
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
         @media (max-width: 768px) {
             body { 
                 padding: 10px;
@@ -267,14 +274,6 @@
             }
             h1 { font-size: 2em; }
             #title-editor { font-size: 2em; }
-            #member-count-input {
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-                user-select: none;
-                -webkit-touch-callout: none;
-                -webkit-tap-highlight-color: transparent;
-            }
             .total-section input {
                 max-width: 60%;
                 width: 60%;
@@ -431,7 +430,8 @@
         }
 
         function removeMember(updateInput = true) {
-            const memberCards = document.querySelectorAll('.member-card');
+            // 只查询未被删除的成员
+            const memberCards = document.querySelectorAll('.member-card:not(.removing)');
             if (memberCards.length > 0) {
                 // 在移动端记录按钮位置
                 const controls = document.querySelector('.controls');
@@ -444,13 +444,15 @@
                 const lastCard = memberCards[memberCards.length - 1];
                 lastCard.classList.add('removing');
                 
-                // 等待动画完成后再删除
+                // 立即更新计数器和计算（在动画开始时）
+                if (updateInput) {
+                    updateMemberCountInput();
+                }
+                calculate();
+                
+                // 等待动画完成后再删除DOM
                 setTimeout(() => {
                     lastCard.remove();
-                    if (updateInput) {
-                        updateMemberCountInput();
-                    }
-                    calculate();
                     
                     // 在移动端调整滚动位置，保持按钮在原位
                     if (window.innerWidth <= 768 && controls && buttonAbsoluteTopBeforeRemove !== null) {
@@ -469,7 +471,8 @@
         }
 
         function getCurrentMemberCount() {
-            return document.querySelectorAll('.member-card').length;
+            // 只计算未被删除的成员（排除正在删除的）
+            return document.querySelectorAll('.member-card:not(.removing)').length;
         }
 
         function updateMemberCountInput() {
@@ -527,7 +530,8 @@
         function calculate() {
             const totalAmountInput = document.getElementById('total-amount');
             const totalAmount = validateNumberInput(totalAmountInput);
-            const memberCards = document.querySelectorAll('.member-card');
+            // 只计算未被删除的成员
+            const memberCards = document.querySelectorAll('.member-card:not(.removing)');
             let totalHours = 0;
             const memberData = [];
             
@@ -625,13 +629,38 @@
             }
         });
         document.getElementById('title-editor').addEventListener('input', adjustEditorWidth);
-        
-        // 移动端阻止成员计数输入框的长按菜单
-        if ('ontouchstart' in window) {
-            document.getElementById('member-count-input').addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            }, { passive: false });
-        }
+
+        // 移动端专属：阻止复制粘贴菜单，但保留选中功能
+        (function() {
+            const input = document.getElementById('member-count-input');
+            const isMobile = 'ontouchstart' in window;
+            
+            if (isMobile) {
+                // 阻止上下文菜单（长按菜单）
+                input.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    return false;
+                }, { passive: false });
+                
+                // 点击时选中全部内容
+                input.addEventListener('click', function() {
+                    this.select();
+                });
+                
+                // 聚焦时选中全部内容
+                input.addEventListener('focus', function() {
+                    setTimeout(() => this.select(), 0);
+                });
+            } else {
+                // 电脑端保持原有行为
+                input.addEventListener('focus', function() {
+                    this.select();
+                });
+                input.addEventListener('click', function() {
+                    this.select();
+                });
+            }
+        })();
     </script>
 </body>
 </html>
